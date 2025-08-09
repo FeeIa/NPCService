@@ -52,12 +52,16 @@ local model: Model = Path.To.Your.Model
 local controller = NPCService:AddNPC(
 	model,
 	{
-		-- You only need to pass what value you want custom, everything defaults to false
+		-- You only need to pass what value you want customize, everything defaults to false
 		isAggressive = true
 	},
 	{
-		-- The parameter pathConfig has a default value of Roblox's default AgentParams, specify if want custom.
-		WaypointSpacing = 2 -- Recommended value: Above 2, Roblox's default is 4
+		-- The parameter pathConfig defaults to Roblox's default AgentParams for PathfindingService, specify if want custom.
+		WaypointSpacing = 2 -- Recommended value: >= 2, Roblox's default is 4
+	},
+	{
+		AttackCooldown = 3,
+		AttackRange = 5
 	}
 )
 
@@ -104,6 +108,14 @@ NPCService:AddNPC(
 		AgentCanClimb: boolean?,
 		WaypointSpacing: number?,
 		CostModifiers: {[string]: number}?
+	}?,
+	customLogic: {
+		MaxSightDistance: number?,
+		MaxSightAngle: number?,
+		ChaseTimeout: number?,
+		AttackRange: number?,
+		AttackCooldown: number?,
+		ChaseDetectionInterval: number?,
 	}?
 ): NPCController
 ```
@@ -112,35 +124,36 @@ NPCService:AddNPC(
 - `respawnAtOrigin`: Determines respawn position 
 - `canWander`: Enables wandering during idle
 - `pathConfig`: The `AgentParams` table used in PathfindingService
+- `customLogic`: The logic values used for behaviour inside `NPCLogic`
 
 Removes an existing NPC (destroys the NPC's Controller and Logic. Does not destroy the model).
 ```lua
 NPCService:RemoveNPC(NPCModel: Model)
 ```
 
-There is type checking implemented in this module, so you can easily check which methods are available. For example:
+There is type checking implemented in this module, so you can easily check what methods are available. For example:
 ```lua
-local NPCService = require(script.Parent)
+...
 
-local model: Model = workspace.testingnpcs.Aggressive
 local controller = NPCService:AddNPC(
 	model,
 	{
-		-- You only need to pass what value you want custom, everything defaults to false
+		-- You only need to pass what value you want customize, everything defaults to false
 		isAggressive = true
 	},
 	{
-		-- The parameter pathConfig has a default value of Roblox's default AgentParams, specify if want custom.
-		WaypointSpacing = 2 -- Recommended value: Above 2, Roblox's default is 4
+		-- The parameter pathConfig defaults to Roblox's default AgentParams for PathfindingService, specify if want custom.
+		WaypointSpacing = 2 -- Recommended value: >= 2, Roblox's default is 4
+	},
+	{
+		AttackCooldown = 3,
+		AttackRange = 5
 	}
 )
 
 controller.NPCLogic:ReturnToOrigin() -- Forces to origin return
 
-task.wait(100)
-
-NPCService:RemoveNPC(model)
-controller = nil -- Remove reference if no longer used
+...
 ```
 
 ## Custom Logic (Inheritance)
@@ -155,10 +168,18 @@ export type InheritedLogic = typeof(setmetatable({}, InheritedLogic)) & NPCLogic
 
 function InheritedLogic.new(
 	nameId: string,
-	NPCController: Types.NPCController
+	NPCController: Types.NPCController,
+	customLogic: {
+		MaxSightDistance: number?,
+		MaxSightAngle: number?,
+		ChaseTimeout: number?,
+		AttackRange: number?,
+		AttackCooldown: number?,
+		ChaseDetectionInterval: number?,
+	}?
 ): InheritedLogic
 	
-	local self = setmetatable(NPCLogic.new(nameId, NPCController) :: InheritedLogic, InheritedLogic)
+	local self = setmetatable(NPCLogic.new(nameId, NPCController, customLogic) :: InheritedLogic, InheritedLogic)
 	
 	return self
 end
