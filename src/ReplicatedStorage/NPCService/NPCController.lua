@@ -134,17 +134,11 @@ function NPCController.Despawn(self: NPCController)
 	self.NPCModel.Parent = nil
 	
 	-- Was despawned, snap back to the origin CFrame and exit the thread if was returning
-	if self.OriginCFrame and self.NPCLogic._status == self.NPCLogic.STATUS.RETURNING 
+	if self.NPCLogic._status == self.NPCLogic.STATUS.RETURNING 
 		and self.Path._status == self.Path.StatusType.Active then
 		
 		self.Path:Stop()
 		self.NPCModel:PivotTo(self.OriginCFrame)
-		
-		-- Disconnect any connections
-		for connectionName, connection in pairs(self.NPCLogic._connections) do
-			UtilityFunctions:DisconnectConnection(self.NPCLogic._connections, connectionName)
-		end
-		table.clear(self.NPCLogic._connections)
 	end
 	
 	-- Stop any ongoing thread inside the NPCLogic to save computational resources
@@ -152,6 +146,14 @@ function NPCController.Despawn(self: NPCController)
 		UtilityFunctions:StopThread(self.NPCLogic._threads, threadName)
 	end
 	table.clear(self.NPCLogic._threads)
+	
+	if self.NPCLogic._status ~= self.NPCLogic.STATUS.CHASING then
+		-- Disconnect any connections
+		for connectionName, connection in pairs(self.NPCLogic._connections) do
+			UtilityFunctions:DisconnectConnection(self.NPCLogic._connections, connectionName)
+		end
+		table.clear(self.NPCLogic._connections)
+	end
 	
 	self._isSpawned = false
 end

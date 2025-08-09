@@ -78,7 +78,9 @@ end
 ---- INITIALIZATION
 -- INITIALIZE THE LOGIC
 function NPCLogic.InitLogic(self: NPCLogic)
-	self:StartIdle()
+	if self._status ~= self.STATUS.CHASING then
+		self:StartIdle()
+	end
 	
 	-- Players check loop is done inside StartDetectPlayersThread (which is called by NPCController)
 	-- If self.NPCController._isAggressive is true, closest player will be chased after
@@ -294,6 +296,8 @@ function NPCLogic.ChasePart(self: NPCLogic, part: BasePart)
 	if isInSight then
 		self._timeChaseTargetLastSeen = workspace:GetServerTimeNow()
 	end
+	
+	UtilityFunctions:StopThread(self._threads, "Wandering")
 	
 	-- Setup connections
 	UtilityFunctions:AddConnection(self._connections, "Blocked", self.NPCController.Path.Blocked, function()

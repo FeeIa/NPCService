@@ -1,6 +1,5 @@
 -- Modules
 local SimplePath = require(script.Parent.Dependencies.SimplePath)
-local UtilityFunctions = require(script.Parent.Dependencies.UtilityFunctions)
 
 local Types = {}
 
