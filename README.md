@@ -3,8 +3,6 @@ Easily create and manage NPCs with aggressive or passive behaviours, including a
 
 Get it:
 * Creator Store: https://create.roblox.com/store/asset/88389726359588/NPCService
-* File:
-[NPCService.rbxm|attachment](upload://iMLpn6lp6eMzxHJPR8ycTcrKcf3.rbxm) (19.4 KB)
 
 ## Overview
 `NPCService` is a modular, reusable system to help create and manage server-sided NPCs efficiently. I decided to create this module because I wanted to minimize lag as much as possible while still using the server as the handler. As you may know, there are ways to make NPCs run locally, but then it gets quite complicated against exploiters.
