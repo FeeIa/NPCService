@@ -7,10 +7,18 @@ export type InheritedLogic = typeof(setmetatable({}, InheritedLogic)) & NPCLogic
 
 function InheritedLogic.new(
 	nameId: string,
-	NPCController: Types.NPCController
+	NPCController: Types.NPCController,
+	customLogic: {
+		MaxSightDistance: number?,
+		MaxSightAngle: number?,
+		ChaseTimeout: number?,
+		AttackRange: number?,
+		AttackCooldown: number?,
+		ChaseDetectionInterval: number?,
+	}?
 ): InheritedLogic
 	
-	local self = setmetatable(NPCLogic.new(nameId, NPCController) :: InheritedLogic, InheritedLogic)
+	local self = setmetatable(NPCLogic.new(nameId, NPCController, customLogic) :: InheritedLogic, InheritedLogic)
 	
 	return self
 end
