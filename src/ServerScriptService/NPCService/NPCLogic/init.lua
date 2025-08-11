@@ -29,7 +29,7 @@ NPCLogic.DEFAULTS = {
 	ChaseTimeout = 5,
 	AttackRange = 2.5,
 	AttackCooldown = 3,
-	ChaseDetectionInterval = 0.05
+	ChaseDetectionInterval = 0.5
 }
 
 export type NPCLogic = Types.NPCLogic
