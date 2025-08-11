@@ -3,15 +3,7 @@ local SimplePath = require(script.Parent.Dependencies.SimplePath)
 
 local Types = {}
 
-export type NPCLogic = {
-	STATUS: {
-		IDLE: string,
-		CHASING: string,
-		ATTACKING: string,
-		RETURNING: string,
-		DEAD: string
-	},
-	
+export type NPCLogic = {	
 	new: (
 		nameId: string,
 		NPCController: NPCController,
@@ -45,6 +37,7 @@ export type NPCLogic = {
 	
 	-- Methods
 	InitLogic: (self: NPCLogic) -> (),
+	InitCustomLogic: (self: NPCLogic) -> (),
 	GetDefaultRaycastParams: (self: NPCLogic, include: {Instance}?) -> RaycastParams,
 	IsPartInSight: (	
 		self: NPCLogic, 
@@ -52,7 +45,7 @@ export type NPCLogic = {
 		raycastParams: RaycastParams?,
 		includeSiblings: boolean?
 	) -> boolean,
-	GetClosestPlayerCharInSight: (self: NPCLogic) -> Model,
+	GetClosestPlayerCharInSight: (self: NPCLogic) -> (Model, number),
 	Attack: (self: NPCLogic, target: Model) -> (),
 	ChasePart: (self: NPCLogic, part: BasePart) -> (),
 	StartIdle: (self: NPCLogic, part: BasePart) -> (),

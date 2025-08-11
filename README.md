@@ -86,7 +86,7 @@ Please make sure to change the SETTINGS ModuleScript if you wish to change any s
 
 ## APIs
 
-Instantiates every model with a Humanoid tagged as `SETTINGS.NPC_TAG` and any custom tags in accordance to `SETTINGS`.
+Instantiates every model with a Humanoid tagged as `SETTINGS.NPC_TAG` and any custom tags related to `behaviourConfig` with respect to `SETTINGS` tags. Keep in mind that `pathConfig` and `customLogic` will be set to the default. It is recommended to manually add them instead using `NPCService:Add()`.
 ```lua
 NPCService:Init()
 ```
@@ -157,8 +157,12 @@ controller.NPCLogic:ReturnToOrigin() -- Forces to origin return
 ```
 
 ## Custom Logic (Inheritance)
-You can extend `NPCLogic` by creating a new ModuleScript named your NPC's model. Be sure to parent it under `NPCLogic` ModuleScript. Example code:
+You can extend `NPCLogic` by creating a new ModuleScript named your NPC's model. Be sure to parent it under `NPCLogic` ModuleScript. Below is an example code that makes your NPC randomly die when there is a nearby player:
 ```lua
+-- Modules
+local UtilityFunctions = require(script.Parent.Parent.Dependencies.UtilityFunctions)
+
+-- Classes
 local NPCLogic = require(script.Parent)
 
 local InheritedLogic = {}
@@ -184,7 +188,26 @@ function InheritedLogic.new(
 	return self
 end
 
--- Override method
+-- Override :InitCustomLogic() for custom behaviour 
+function InheritedLogic.InitCustomLogic(self: InheritedLogic)
+	-- Example: Make NPC randomly dies when there is a player nearby
+
+	UtilityFunctions:AddThread(self._threads, "CustomerDetection", function()
+		local hum = self.NPCController.NPCModel:FindFirstChildOfClass("Humanoid")
+		
+		while task.wait(3) do
+			if not hum then return end
+			
+			local nearestChar, dist = self:GetClosestPlayerCharInSight()
+			
+			if nearestChar and dist < 20 and math.random(1, 100) <= 40 then
+				hum:TakeDamage(math.huge)
+			end
+		end
+	end)
+end
+
+-- Override :Attack()
 function InheritedLogic.Attack(self: InheritedLogic)
 	self:CustomNewMethod()
 end

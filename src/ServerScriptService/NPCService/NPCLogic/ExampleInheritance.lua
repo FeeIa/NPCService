@@ -1,3 +1,7 @@
+-- Modules
+local UtilityFunctions = require(script.Parent.Parent.Dependencies.UtilityFunctions)
+
+-- Classes
 local NPCLogic = require(script.Parent)
 
 local InheritedLogic = {}
@@ -23,7 +27,26 @@ function InheritedLogic.new(
 	return self
 end
 
--- Override method
+-- Override :InitCustomLogic() for custom behaviour 
+function InheritedLogic.InitCustomLogic(self: InheritedLogic)
+	-- Example: Make NPC randomly dies when there is a player nearby
+
+	UtilityFunctions:AddThread(self._threads, "CustomerDetection", function()
+		local hum = self.NPCController.NPCModel:FindFirstChildOfClass("Humanoid")
+		
+		while task.wait(3) do
+			if not hum then return end
+			
+			local nearestChar, dist = self:GetClosestPlayerCharInSight()
+			
+			if nearestChar and dist < 20 and math.random(1, 100) <= 40 then
+				hum:TakeDamage(math.huge)
+			end
+		end
+	end)
+end
+
+-- Override :Attack()
 function InheritedLogic.Attack(self: InheritedLogic)
 	self:CustomNewMethod()
 end

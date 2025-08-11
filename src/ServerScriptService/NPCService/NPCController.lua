@@ -1,8 +1,7 @@
 -- Class: NPCController
 
--- Servies
+-- Services
 local RunService = game:GetService("RunService")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 
 -- Modules
@@ -16,7 +15,7 @@ local NPCLogic = require(script.Parent.NPCLogic)
 
 local NPCController = {}
 NPCController.__index = NPCController
-NPCController.__className = "NPCController"
+NPCController.ClassName = "NPCController"
 
 NPCController.DEFAULTS = {
 	isAggressive = false,

@@ -2,8 +2,6 @@
 -- Can do inheritance for custom NPC logic (make sure to type check if you want intellisense)
 
 -- Services
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
 
 -- Modules
@@ -15,7 +13,7 @@ local GetActiveNPCModel = script.Parent.Bindables.GetActiveNPCModel
 
 local NPCLogic = {}
 NPCLogic.__index = NPCLogic
-NPCLogic.__className = "NPCLogic"
+NPCLogic.ClassName = "NPCLogic"
 
 NPCLogic.STATUS = {
 	IDLE = "Idle",
@@ -30,8 +28,8 @@ NPCLogic.DEFAULTS = {
 	MaxSightAngle = 100,
 	ChaseTimeout = 5,
 	AttackRange = 2.5,
-	AttackCooldown = 1,
-	ChaseDetectionInterval = 0.25
+	AttackCooldown = 3,
+	ChaseDetectionInterval = 0.05
 }
 
 export type NPCLogic = Types.NPCLogic
@@ -64,7 +62,7 @@ function NPCLogic.new(
 	end
 	
 	-- States
-	self._status = self.STATUS.IDLE
+	self._status = NPCLogic.STATUS.IDLE
 	self._lastAttackTime = workspace:GetServerTimeNow()
 	self._timeChaseTargetLastSeen = workspace:GetServerTimeNow()
 	self._chaseTarget = nil
@@ -78,12 +76,21 @@ end
 ---- INITIALIZATION
 -- INITIALIZE THE LOGIC
 function NPCLogic.InitLogic(self: NPCLogic)
-	if self._status ~= self.STATUS.CHASING then
+	if self._status ~= NPCLogic.STATUS.CHASING then
 		self:StartIdle()
 	end
 	
 	-- Players check loop is done inside StartDetectPlayersThread (which is called by NPCController)
 	-- If self.NPCController._isAggressive is true, closest player will be chased after
+	
+	self:InitCustomLogic() -- So it automatically initializes for custom inherited classes
+end
+
+---- CUSTOM LOGIC
+-- INITIALIZE ANY CUSTOM LOGIC BEHAVIOUR
+function NPCLogic.InitCustomLogic(self: NPCLogic)
+	-- You need to implement this inside inherited classes of customized logic
+	-- See example in ExampleInheritance ModuleScript
 end
 
 ---- RAYCASTING
@@ -209,7 +216,7 @@ function NPCLogic.StartDetectPlayersThread(self: NPCLogic)
 			end
 			
 			-- Get closest player
-			if not self.NPCController._isAggressive then return end
+			if not self.NPCController._isAggressive then continue end
 			
 			local closestChar = self:GetClosestPlayerCharInSight()
 			
@@ -221,8 +228,8 @@ function NPCLogic.StartDetectPlayersThread(self: NPCLogic)
 	end)
 end
 
--- GET CLOSEST PLAYER CHARACTER IN SIGHT
-function NPCLogic.GetClosestPlayerCharInSight(self: NPCLogic): Model
+-- GET CLOSEST PLAYER CHARACTER IN SIGHT, ALSO THE DISTANCE TO THEM
+function NPCLogic.GetClosestPlayerCharInSight(self: NPCLogic): (Model, number)
 	local closestChar = nil
 	local closestDist = math.huge
 	
@@ -241,7 +248,7 @@ function NPCLogic.GetClosestPlayerCharInSight(self: NPCLogic): Model
 		end
 	end
 	
-	return closestChar
+	return closestChar, closestDist
 end
 
 ---- ATTACKING BEHAVIOUR
@@ -274,8 +281,8 @@ function NPCLogic.ChasePart(self: NPCLogic, part: BasePart)
 	
 	self._chaseTarget = part
 	
-	self.NPCController:StopOtherActivePathExcept(self.STATUS.CHASING)
-	self._status = self.STATUS.CHASING
+	self.NPCController:StopOtherActivePathExcept(NPCLogic.STATUS.CHASING)
+	self._status = NPCLogic.STATUS.CHASING
 	
 	-- Main logic
 	local model = self.NPCController.NPCModel
@@ -364,7 +371,7 @@ function NPCLogic.ChasePart(self: NPCLogic, part: BasePart)
 	end)
 	
 	UtilityFunctions:AddConnection(self._connections, "Error", self.NPCController.Path.Error, function()
-		self.NPCController.Path:Run(self.NPCController.OriginCFrame.Position)
+		self.NPCController.Path:Run(part)
 	end)
 	
 	local succ, err = pcall(function()
@@ -374,13 +381,13 @@ end
 
 -- IDLE AND WANDERS AROUND THE ORIGIN IF ENABLED
 function NPCLogic.StartIdle(self: NPCLogic)
-	self.NPCController:StopOtherActivePathExcept(self.STATUS.IDLE)
-	self._status = self.STATUS.IDLE
+	self.NPCController:StopOtherActivePathExcept(NPCLogic.STATUS.IDLE)
+	self._status = NPCLogic.STATUS.IDLE
 	
 	if not self.NPCController._canWander then return end
 	
 	UtilityFunctions:AddThread(self._threads, "Wandering", function()
-		while self._status == self.STATUS.IDLE do
+		while self._status == NPCLogic.STATUS.IDLE do
 			local root = self.NPCController.NPCModel.PrimaryPart
 			if root then
 				local randomOffset = Vector3.new(
@@ -403,8 +410,8 @@ end
 
 -- RETURNS TO THE ORIGIN
 function NPCLogic.ReturnToOrigin(self: NPCLogic)
-	self.NPCController:StopOtherActivePathExcept(self.STATUS.RETURNING)
-	self._status = self.STATUS.RETURNING
+	self.NPCController:StopOtherActivePathExcept(NPCLogic.STATUS.RETURNING)
+	self._status = NPCLogic.STATUS.RETURNING
 	
 	local hum = self.NPCController.NPCModel:FindFirstChildOfClass("Humanoid")
 	if not hum then return end
@@ -419,7 +426,7 @@ function NPCLogic.ReturnToOrigin(self: NPCLogic)
 	end)
 	
 	UtilityFunctions:AddConnection(self._connections, "Reached", self.NPCController.Path.Reached, function()
-		self._status = self.STATUS.IDLE
+		self._status = NPCLogic.STATUS.IDLE
 
 		if self.NPCController.Path._status == self.NPCController.Path.StatusType.Active then
 			self.NPCController.Path:Stop()

@@ -6,7 +6,7 @@ local SETTINGS = {
 	NPC_RESPAWN_AT_ORIGIN_TAG = "OriginRespawn",
 	NPC_WANDER_TAG = "Wander",
 	CULLING_DISTANCE = 100, -- The distance where if there are no nearby players within the proximity, the NPC despawns temporarily
-	CULLING_FREQUENCY = 5, -- Amount of culling checks fired per second
+	CULLING_FREQUENCY = 3, -- Amount of culling checks fired per second
 	PATH_VISUALIZE = false, -- Decides whether you can see the path created by SimplePath
 }
 
