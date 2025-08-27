@@ -1,5 +1,5 @@
 # NPCService
-Easily create and manage NPCs with aggressive or passive behaviours, including a simple combat and wandering logic.
+Easily create and manage NPCs with aggressive or passive behaviours, including simple combat and wandering logic.
 
 ## Overview
 `NPCService` is a modular, reusable system to help create and manage server-sided NPCs efficiently. I decided to create this module because I wanted to minimize lag as much as possible while still using the server as the handler. As you may know, there are ways to make NPCs run locally, but then it gets quite complicated against exploiters.
@@ -83,7 +83,7 @@ Please make sure to change the SETTINGS ModuleScript if you wish to change any s
 
 ## APIs
 
-Instantiates every model with a Humanoid tagged as `SETTINGS.NPC_TAG` and any custom tags related to `behaviourConfig` with respect to `SETTINGS` tags. Keep in mind that `pathConfig` and `customLogic` will be set to the default. It is recommended to manually add them instead using `NPCService:Add()`.
+Instantiates every model with a Humanoid tagged as `SETTINGS.NPC_TAG` and any custom tags related to `behaviourConfig` with respect to `SETTINGS` tags. Keep in mind that `pathConfig` and `customLogic` will be set to the default. It is recommended to manually add them instead by using `NPCService:AddNPC()`.
 ```lua
 NPCService:Init()
 ```
